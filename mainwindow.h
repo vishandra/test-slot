@@ -14,6 +14,7 @@ struct Symbol {
     int comb;
 };
 
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -27,6 +28,8 @@ private slots:
 
     void on_startMoreButton_clicked();
 
+    void on_clearButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 
@@ -38,6 +41,7 @@ private:
     double lootRand();
     Symbol getSymbol();
     void drawPic(QString symb, int count);
+    void genColumn(QString winS, QString &s1,  QString &s2, QString &s3, QString &s4);
 
     QTime midnight{0,0,0};
 

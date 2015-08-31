@@ -17,6 +17,7 @@ const QList<int> S6 {15,90,500};
 const QList<int> S7 {20,120,750};
 const QList<int> S8 {30,150,1000};
 const QList<int> S9 {50,200,2000};
+const QList<QString> sym {"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9"};
 const double pWin = 0.2;
 const double cashBack = 0.9;
 const double bet = 1;
@@ -43,6 +44,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     genCoefMatrix();
     genProbMatrix();
+
+    setFixedHeight(sizeHint().height());
+    setFixedWidth(sizeHint().width());
 
 }
 
@@ -209,7 +213,7 @@ Symbol MainWindow::getSymbol()
                   //  getMaxPossible(s);
                     s.symb = 1;
                     s.comb = 0;
-                    if (cashPay > 0.902*cashTake) {
+                    if (cashPay > 0.901*cashTake) {
                         s.symb = 0;
                         s.comb = 0;
                     }
@@ -227,11 +231,18 @@ Symbol MainWindow::getSymbol()
 
 void MainWindow::drawPic(QString symb, int count)
 {
-    for (int i = 0; i < ui->tableWidget->rowCount(); i++) {
-        for (int j = 0; j < ui->tableWidget->columnCount(); j++) {
-            ui->tableWidget->setItem(i, j, new QTableWidgetItem("X"));//  ->item(i,j)->setText("X");
-            ui->tableWidget->item(i,j)->setBackgroundColor(Qt::white);
-        }
+    QString s1, s2, s3, s4;
+    s4 = "nene";
+    for (int i = 0; i < ui->tableWidget->columnCount(); i++) {
+        genColumn(symb, s1, s2, s3, s4);
+        ui->tableWidget->setItem(0, i, new QTableWidgetItem(s1));//  ->item(i,j)->setText("X");
+        ui->tableWidget->item(0,i)->setBackgroundColor(Qt::white);
+
+        ui->tableWidget->setItem(1, i, new QTableWidgetItem(s2));
+        ui->tableWidget->item(1,i)->setBackgroundColor(Qt::white);
+
+        ui->tableWidget->setItem(2, i, new QTableWidgetItem(s3));
+        ui->tableWidget->item(2,i)->setBackgroundColor(Qt::white);
     }
 
     if (symb == "none") {
@@ -249,13 +260,96 @@ void MainWindow::drawPic(QString symb, int count)
     }
 }
 
+void MainWindow::genColumn(QString winS, QString &s1, QString &s2, QString &s3, QString &s4)
+{
+    QList<QString> buf = sym;
+    int cas, num;
+    if (s4 == "nene") {
+        cas = 0;
+    }
+    if (s4 == "end") {
+        cas = 1;
+    }
+
+    if (winS == "none") {
+        switch (cas) {
+        case 0:
+            num = rand() % 9;
+            s1 = buf[num];
+            buf.removeAt(num);
+
+            num =  rand() % 8;
+            s2 = buf[num];
+            buf.removeAt(num);
+
+            num =  rand() % 7;
+            s3 = buf[num];
+
+            s4 = s2;
+            return;
+            break;
+        case 1:
+            num =  rand() % 9;
+            s1 = buf[num];
+            buf.removeAt(num);
+
+            num =  rand() % 8;
+            s2 = buf[num];
+            buf.removeAt(num);
+
+            num =  rand() % 7;
+            s3 = buf[num];
+            return;
+        default:
+            for (int i = 0; i < buf.size(); i++) {
+                if (s4 == buf[i]) {
+                    buf.removeAt(i);
+                    break;
+                }
+            }
+
+            num =  rand() % 8;
+            s2 = buf[num];
+            buf.removeAt(num);
+
+            buf.append(s4);
+
+            num =  rand() % 8;
+            s1 = buf[num];
+            buf.removeAt(num);
+
+            num =  rand() % 7;
+            s3 = buf[num];
+
+            s4 = "end";
+            return;
+        }
+    }
+    else {
+        for (int i = 0; i < buf.size(); i++) {
+            if (winS == buf[i]) {
+                buf.removeAt(i);
+                break;
+            }
+        }
+        int num =  rand() % 8;
+        s1 = buf[num];
+        buf.removeAt(num);
+
+        num =  rand() % 7;
+        s2 = buf[num];
+        buf.removeAt(num);
+
+        num =  rand() % 6;
+        s3 = buf[num];
+    }
+}
+
 void MainWindow::on_startMoreButton_clicked()
 {
     int count = ui->iterationLine->text().toInt();
 
-    m_count = 0;
-    m_win = 0;
-    m_sum = 0;
+
 
     for (int i = 0; i < count; i++) {
         on_startButton_clicked();
@@ -263,4 +357,16 @@ void MainWindow::on_startMoreButton_clicked()
 
     ui->cash->setText(QString("%1").arg(m_sum));
     ui->winRate->setText(QString("%1").arg((double)m_win / m_count));
+    ui->loseCash->setText(QString("%1").arg(cashTake));
+    ui->cashBack->setText(QString("%1").arg((double)m_sum / cashTake));
+}
+
+void MainWindow::on_clearButton_clicked()
+{
+    m_count = 0;
+    m_win = 0;
+    m_sum = 0;
+    cashTake = 0;
+    cashHave = 0;
+    cashPay = 0;
 }
